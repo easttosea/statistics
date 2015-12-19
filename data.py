@@ -32,9 +32,9 @@ class Statistics(object):
         self.normal_delivery_order = self.normal_delivery_order.set_index('成交日期')
 
     def get_position(self):
-        normal_position = {'600010': ['包钢股份', 5500], '600506': ['香梨股份', 10000],
-                           '600737': ['中粮屯河', 17000], '600583': ['海油工程', 9300]}
-        normal_cash = 1500000
+        normal_position = {'600010': ['包钢股份', 5500, 22440], '600506': ['香梨股份', 10000, 113100],
+                           '600737': ['中粮屯河', 17000, 150620], '600583': ['海油工程', 95790]}
+        normal_cash = 129.27
         normal_position_list = []
         normal_cash_list = []
         for row in self.normal_delivery_order.iterrows():
@@ -51,7 +51,7 @@ class Statistics(object):
             name = row[1]['证券名称']
             volume = row[1]['成交数量']
             amount = row[1]['发生金额']
-            if operation in ['证券买入', '证券卖出', '质押回购拆出', '拆出质押购回']:
+            if operation in ['证券买入', '证券卖出', ]:
                 try:
                     normal_position[code][1] += volume
                     normal_cash += amount
@@ -66,6 +66,11 @@ class Statistics(object):
                 if normal_cash < 0:
                     logging.error('现金为负  交易情况：{0},{1},{2},{3},{4}股,{5}元  交易后现金：{6}元'.format(
                             date, operation, code, name, volume, amount, normal_cash))
+            elif operation in ['质押回购拆出', '拆出质押购回']:
+                try:
+                    normal_position[code][1] += volume
+                except KeyError:
+                    normal_position[code] = [name, volume]
 
 #            if operation in ['证券买入', '证券卖出', '担保品划入', '担保品划出', '红股入帐', '新股入帐',
 #                             '基金分拆', '基金合并', '开放基金赎回', '托管转出', '托管转入', 'ETF赎回基金过户']:
